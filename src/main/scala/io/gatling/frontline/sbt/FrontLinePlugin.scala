@@ -1,18 +1,18 @@
 /**
-  * Copyright 2011-2018 GatlingCorp (http://gatling.io)
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-  *
-  * http://www.apache.org/licenses/LICENSE-2.0
-  *
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
-  */
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.gatling.frontline.sbt
 
 import java.io.File
@@ -49,8 +49,7 @@ object FrontLinePlugin extends AutoPlugin {
             val name = ivyModule.value.moduleSettings match {
               case ic: InlineConfiguration => ic.module.name
               case _ =>
-                throw new IllegalStateException(
-                  "sbt-frontline plugin currently only supports InlineConfiguration of ivy settings (the default in sbt)")
+                throw new IllegalStateException("sbt-frontline plugin currently only supports InlineConfiguration of ivy settings (the default in sbt)")
             }
             new File(ivyConfig.resolutionCacheDir.get, s"reports/$org-$name-${config.name}.xml")
 

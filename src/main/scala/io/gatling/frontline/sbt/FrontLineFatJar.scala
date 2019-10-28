@@ -6,7 +6,7 @@ import scala.xml.parsing.ConstructingParser
 
 import org.zeroturnaround.zip.ZipUtil
 import org.zeroturnaround.zip.commons.FileUtilsV2_2
-import sbt.io.{IO, Using}
+import sbt.io.{ IO, Using }
 
 object FrontLineFatJar {
 
@@ -27,7 +27,7 @@ object FrontLineFatJar {
       organisation: String,
       target: File,
       fullClasspath: Seq[File],
-      fatJarName: String,
+      fatJarName: String
   ): File = {
     val doc = ConstructingParser
       .fromSource(scala.io.Source.fromFile(ivyReport), preserveWS = false)
@@ -90,8 +90,7 @@ object FrontLineFatJar {
     }
 
     val nonGatlingModules =
-      removeModulesByAncestorWithOrg(modules :+ rootModule,
-                                     Set("io.gatling", "io.gatling.highcharts", "io.gatling.frontline"))
+      removeModulesByAncestorWithOrg(modules :+ rootModule, Set("io.gatling", "io.gatling.highcharts", "io.gatling.frontline"))
         .filterNot(_ == rootModule)
 
     val classDirectories = fullClasspath.filter(_.isDirectory)
@@ -106,10 +105,7 @@ object FrontLineFatJar {
         // copy compiled classes
         for (directory <- classDirectories if directory.exists) {
           val directoryPath = directory.toPath
-          FileUtilsV2_2.copyDirectory(directory,
-                                      workingDir,
-                                      pathname => !exclude(directoryPath.relativize(pathname.toPath).toString),
-                                      false)
+          FileUtilsV2_2.copyDirectory(directory, workingDir, pathname => !exclude(directoryPath.relativize(pathname.toPath).toString), false)
         }
 
         // generate fake manifest
@@ -117,11 +113,11 @@ object FrontLineFatJar {
         manifest.getParentFile.mkdirs
 
         Using.fileWriter()(manifest)(_.write(s"""Manifest-Version: 1.0
-            |Implementation-Title: ${rootModule.id.name}
-            |Implementation-Version: ${rootModule.id.revision}
-            |Specification-Vendor: $organisation
-            |Implementation-Vendor: GatlingCorp
-            |""".stripMargin))
+                                                |Implementation-Title: ${rootModule.id.name}
+                                                |Implementation-Version: ${rootModule.id.revision}
+                                                |Specification-Vendor: $organisation
+                                                |Implementation-Vendor: GatlingCorp
+                                                |""".stripMargin))
 
         val fatjarArtifact = new File(target, fatJarName + ".jar")
 
