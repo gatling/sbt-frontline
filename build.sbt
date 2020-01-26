@@ -14,3 +14,5 @@ bintrayRepository := "sbt-plugins"
 bintrayOrganization in bintray := None
 
 libraryDependencies += "org.zeroturnaround" % "zt-zip" % "1.13"
+
+ pluginCrossBuild / sbtVersion := "1.2.8"
