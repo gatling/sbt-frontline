@@ -52,7 +52,7 @@ object DependencyFilter {
 
     excludedDeps
       .flatMap(_.artifacts)
-      .collect { case (artifact, file) if artifact.`type` == Artifact.DefaultType => file }
+      .collect { case (artifact, file) if artifact.`type` == Artifact.DefaultType || artifact.`type` == "bundle" => file }
   }
 
   private def moduleCallers(reports: Vector[ModuleReport]): Map[ModuleID, List[ModuleID]] =
