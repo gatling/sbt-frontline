@@ -18,12 +18,16 @@ package io.gatling.frontline.sbt
 import java.io.File
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
-import sbt.Keys.Classpath
-import sbt.internal.util.Attributed
 import sbt.librarymanagement._
 import sbt.util.Logger
+
+object ArtifactWithoutVersion {
+  def apply(moduleId: ModuleID): ArtifactWithoutVersion =
+    ArtifactWithoutVersion(moduleId.organization, moduleId.name)
+}
+
+case class ArtifactWithoutVersion(organization: String, name: String)
 
 object DependencyFilter {
 
@@ -55,18 +59,18 @@ object DependencyFilter {
       .collect { case (artifact, file) if artifact.`type` == Artifact.DefaultType || artifact.`type` == "bundle" => file }
   }
 
-  private def moduleCallers(reports: Vector[ModuleReport]): Map[ModuleID, List[ModuleID]] =
-    reports.map(report => (report.module.withConfigurations(None), report.callers.map(_.caller).toList)).toMap
+  private def moduleCallers(reports: Vector[ModuleReport]): Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]] =
+    reports.map(report => (ArtifactWithoutVersion(report.module), report.callers.map(caller => ArtifactWithoutVersion(caller.caller)).toList)).toMap
 
-  private def isTransitiveGatlingDependency(report: ModuleReport, callers: Map[ModuleID, List[ModuleID]]): Boolean = {
+  private def isTransitiveGatlingDependency(report: ModuleReport, callers: Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]]): Boolean = {
     @tailrec
-    def isTransitiveGatlingDependencyRec(toCheck: List[ModuleID]): Boolean =
+    def isTransitiveGatlingDependencyRec(toCheck: List[ArtifactWithoutVersion]): Boolean =
       toCheck match {
         case Nil                                                => false
         case dep :: _ if GatlingOrgs.contains(dep.organization) => true
         case dep :: rest                                        => isTransitiveGatlingDependencyRec(callers.getOrElse(dep, Nil) ::: rest)
       }
 
-    isTransitiveGatlingDependencyRec(List(report.module.withConfigurations(None)))
+    isTransitiveGatlingDependencyRec(List(ArtifactWithoutVersion(report.module.withConfigurations(None))))
   }
 }
