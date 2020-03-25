@@ -31,7 +31,11 @@ case class ArtifactWithoutVersion(organization: String, name: String)
 
 object DependencyFilter {
 
-  private val GatlingOrgs = Set("io.gatling", "io.gatling.highcharts", "io.gatling.frontline")
+  private val GatlingOrgs = Set("io.gatling", "io.gatling.highcharts", "io.gatling.frontline") ++
+    Set( // partial workaround for sbt coursier back-end not reporting all callers for direct deps
+      "org.scala-lang", // scala-library and scala-reflect are always direct dependencies
+      "ch.qos.logback" // having multiple slf4-j back-ends on the classpath is an issue
+    )
 
   def nonGatlingDependencies(
       resolution: DependencyResolution,
