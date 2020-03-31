@@ -64,7 +64,12 @@ object DependencyFilter {
   }
 
   private def moduleCallers(reports: Vector[ModuleReport]): Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]] =
-    reports.map(report => (ArtifactWithoutVersion(report.module), report.callers.map(caller => ArtifactWithoutVersion(caller.caller)).toList)).toMap
+    reports
+      .map(report => ArtifactWithoutVersion(report.module) -> report.callers.map(caller => ArtifactWithoutVersion(caller.caller)))
+      .groupBy(_._1) // sadly Caller misses classifier, see https://github.com/sbt/sbt/issues/5491, so we merge modules
+      .mapValues(_.flatMap(_._2.toSet).toList)
+      .toVector // because mapValue is a view
+      .toMap
 
   private def isTransitiveGatlingDependency(report: ModuleReport, callers: Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]]): Boolean = {
     @tailrec
