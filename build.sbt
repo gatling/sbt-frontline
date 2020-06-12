@@ -13,4 +13,4 @@ publishMavenStyle := false
 bintrayRepository := "sbt-plugins"
 bintrayOrganization in bintray := None
 
-libraryDependencies += "org.zeroturnaround" % "zt-zip" % "1.13"
+libraryDependencies += "org.zeroturnaround" % "zt-zip" % "1.14"
