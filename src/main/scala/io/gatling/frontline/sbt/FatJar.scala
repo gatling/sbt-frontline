@@ -25,12 +25,13 @@ import sbt.librarymanagement.ModuleID
 
 object FatJar {
 
-  def packageFatJar(rootModule: ModuleID, classesDirectory: Seq[File], dependencies: Seq[File], target: File, jarName: String): File =
+  def packageFatJar(rootModule: ModuleID, classesDirectory: Seq[File], gatlingVersion: String, dependencies: Seq[File], target: File, jarName: String): File =
     IO.withTemporaryDirectory(
       workingDir => {
         extractDependencies(workingDir, dependencies)
         copyClasses(workingDir, classesDirectory)
         generateManifest(workingDir, rootModule)
+        generateVersionFile(workingDir, gatlingVersion)
 
         val fatJarFile = target / s"$jarName.jar"
         // Generate fatjar
@@ -58,6 +59,11 @@ object FatJar {
                       |""".stripMargin
 
     IO.write(workingDir / "META-INF" / "MANIFEST.MF", manifest)
+  }
+
+  private def generateVersionFile(workingDir: File, gatlingVersion: String): Unit = {
+    val content = s"gatling-compile-version=$gatlingVersion"
+    IO.write(workingDir / "META-INF" / "gatling-compile-version.properties", content)
   }
 
   private def isExcluded(name: String): Boolean =

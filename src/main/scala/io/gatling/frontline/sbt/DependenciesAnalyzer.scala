@@ -29,7 +29,9 @@ object ArtifactWithoutVersion {
 
 case class ArtifactWithoutVersion(organization: String, name: String)
 
-object DependencyFilter {
+case class DependenciesAnalysisResult(gatlingVersion: String, nonGatlingDependencies: Vector[File])
+
+object DependenciesAnalyzer {
 
   private val GatlingOrgs = Set("io.gatling", "io.gatling.highcharts", "io.gatling.frontline") ++
     Set( // partial workaround for sbt coursier back-end not reporting all callers for direct deps
@@ -37,14 +39,14 @@ object DependencyFilter {
       "ch.qos.logback" // having multiple slf4-j back-ends on the classpath is an issue
     )
 
-  def nonGatlingDependencies(
+  def analyze(
       resolution: DependencyResolution,
       updateConfig: UpdateConfiguration,
       unresolvedWarningConfig: UnresolvedWarningConfiguration,
       config: Configuration,
       logger: Logger,
       rootModule: ModuleDescriptorConfiguration
-  ): Vector[File] = {
+  ): DependenciesAnalysisResult = {
     val moduleDescriptor = resolution.moduleDescriptor(rootModule)
 
     val updateReport = resolution
@@ -55,12 +57,19 @@ object DependencyFilter {
       .configuration(ConfigRef.configToConfigRef(config))
       .getOrElse(throw new IllegalStateException(s"Could not find a report for configuration $config"))
 
+    val gatlingVersion = configurationReport.modules
+      .map(_.module)
+      .collectFirst { case module if module.organization == "io.gatling" && module.name.startsWith("gatling-app") => module.revision }
+      .getOrElse(throw new IllegalArgumentException("Couldn't locate Gatling libraries in the classpath"))
+
     val callers = moduleCallers(configurationReport.modules)
     val excludedDeps = configurationReport.modules.filterNot(isTransitiveGatlingDependency(_, callers))
 
-    excludedDeps
+    val nonGatlingDependencies = excludedDeps
       .flatMap(_.artifacts)
       .collect { case (artifact, file) if artifact.`type` == Artifact.DefaultType || artifact.`type` == "bundle" => file }
+
+    DependenciesAnalysisResult(gatlingVersion, nonGatlingDependencies)
   }
 
   private def moduleCallers(reports: Vector[ModuleReport]): Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]] =
