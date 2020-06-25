@@ -30,8 +30,7 @@ object FatJar {
       workingDir => {
         extractDependencies(workingDir, dependencies)
         copyClasses(workingDir, classesDirectory)
-        generateManifest(workingDir, rootModule)
-        generateVersionFile(workingDir, gatlingVersion)
+        generateManifest(workingDir, rootModule, gatlingVersion)
 
         val fatJarFile = target / s"$jarName.jar"
         // Generate fatjar
@@ -50,20 +49,16 @@ object FatJar {
       FileUtilsV2_2.copyDirectory(directory, workingDir, pathname => !isExcluded(directoryPath.relativize(pathname.toPath).toString), false)
     }
 
-  private def generateManifest(workingDir: File, rootModule: ModuleID): Unit = {
+  private def generateManifest(workingDir: File, rootModule: ModuleID, gatlingVersion: String): Unit = {
     val manifest = s"""Manifest-Version: 1.0
                       |Implementation-Title: ${rootModule.name}
+                      |Implementation-Vendor: ${rootModule.organization}
                       |Implementation-Version: ${rootModule.revision}
-                      |Specification-Vendor: ${rootModule.organization}
-                      |Implementation-Vendor: GatlingCorp
+                      |Specification-Vendor: GatlingCorp
+                      |Gatling-Version: $gatlingVersion
                       |""".stripMargin
 
     IO.write(workingDir / "META-INF" / "MANIFEST.MF", manifest)
-  }
-
-  private def generateVersionFile(workingDir: File, gatlingVersion: String): Unit = {
-    val content = s"gatling-compile-version=$gatlingVersion"
-    IO.write(workingDir / "META-INF" / "gatling-compile-version.properties", content)
   }
 
   private def isExcluded(name: String): Boolean =
