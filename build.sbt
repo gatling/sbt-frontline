@@ -8,7 +8,7 @@ licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.
 
 name := "sbt-frontline"
 scalafmtOnCompile := true
-scalaVersion := "2.12.11"
+scalaVersion := "2.12.12"
 publishMavenStyle := false
 bintrayRepository := "sbt-plugins"
 bintrayOrganization in bintray := None
