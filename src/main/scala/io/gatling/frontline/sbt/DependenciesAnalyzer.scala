@@ -39,6 +39,9 @@ object DependenciesAnalyzer {
       "ch.qos.logback" // having multiple slf4-j back-ends on the classpath is an issue
     )
 
+  private def exclude(dep: ArtifactWithoutVersion): Boolean =
+    GatlingOrgs.contains(dep.organization) || (dep.organization == "io.netty" && dep.name == "netty-all")
+
   def analyze(
       resolution: DependencyResolution,
       updateConfig: UpdateConfiguration,
@@ -84,9 +87,9 @@ object DependenciesAnalyzer {
     @tailrec
     def isTransitiveGatlingDependencyRec(toCheck: List[ArtifactWithoutVersion]): Boolean =
       toCheck match {
-        case Nil                                                => false
-        case dep :: _ if GatlingOrgs.contains(dep.organization) => true
-        case dep :: rest                                        => isTransitiveGatlingDependencyRec(callers.getOrElse(dep, Nil) ::: rest)
+        case Nil                      => false
+        case dep :: _ if exclude(dep) => true
+        case dep :: rest              => isTransitiveGatlingDependencyRec(callers.getOrElse(dep, Nil) ::: rest)
       }
 
     isTransitiveGatlingDependencyRec(List(ArtifactWithoutVersion(report.module.withConfigurations(None))))
