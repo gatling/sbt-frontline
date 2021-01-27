@@ -64,6 +64,7 @@ object FatJar {
   private def isExcluded(name: String): Boolean =
     name.equalsIgnoreCase("META-INF/LICENSE") ||
       name.equalsIgnoreCase("META-INF/MANIFEST.MF") ||
+      name.startsWith("META-INF/versions/") ||
       name.endsWith(".SF") ||
       name.endsWith(".DSA") ||
       name.endsWith(".RSA")
