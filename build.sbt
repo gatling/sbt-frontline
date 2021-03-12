@@ -3,6 +3,7 @@ enablePlugins(GatlingOssPlugin)
 
 homepage := Some(new URL("https://gatling.io"))
 organization := "io.gatling.frontline"
+sonatypeProfileName := "io.gatling"
 organizationHomepage := Some(new URL("https://gatling.io"))
 githubPath := "gatling/sbt-frontline"
 startYear := Some(2018)
