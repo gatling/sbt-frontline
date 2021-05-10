@@ -48,13 +48,13 @@ object FrontLinePlugin extends AutoPlugin {
     val DependenciesAnalysisResult(gatlingVersion, dependencies) = DependenciesAnalyzer.analyze(
       dependencyResolution.value,
       updateConfiguration.value,
-      (unresolvedWarningConfiguration in update).value,
+      (update / unresolvedWarningConfiguration).value,
       config,
       streams.value.log,
       moduleDescriptor
     )
 
-    val classesDirectories = (fullClasspath in config).value.map(_.data).filter(_.isDirectory)
+    val classesDirectories = (config / fullClasspath).value.map(_.data).filter(_.isDirectory)
 
     FatJar.packageFatJar(moduleDescriptor.module, classesDirectories, gatlingVersion, dependencies, target.value, assemblyJarName.value)
   }
