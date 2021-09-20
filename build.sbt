@@ -11,7 +11,7 @@ licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.
 
 name := "sbt-frontline"
 
-scalaVersion := "2.12.13"
+scalaVersion := "2.12.15"
 
 libraryDependencies += "org.zeroturnaround" % "zt-zip" % "1.14"
 
